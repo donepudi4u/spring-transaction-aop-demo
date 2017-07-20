@@ -15,27 +15,31 @@
 		<property name="url" value="jdbc:mysql://localhost:3306/practice" />
 		<property name="username" value="root" />
 		<property name="password" value="root" />
+		
 	</bean>
 
 	<tx:advice id="txAdvice" transaction-manager="transactionManager">
 		<tx:attributes>
-			<tx:method name="create" />
+			<!-- <tx:method name="create" propagation="REQUIRES_NEW" timeout="5"/> -->
+			<tx:method name="createStudents" propagation="REQUIRES_NEW" timeout="75"/>
 		</tx:attributes>
 	</tx:advice>
 
 	<aop:config>
-		<aop:pointcut id="createOperation" expression="execution(* com.prokarma.apps.spring_transaction.StudentJDBCTemplate.create(..))" />
+		<aop:pointcut id="createOperation" expression="execution(* com.prokarma.apps.spring_transaction.student.service.*.*(..))" />
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="createOperation" />
 	</aop:config>
 
-	<!-- Initialization for TransactionManager -->
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 
-	<!-- Definition for studentJDBCTemplate bean -->
-	<bean id="studentJDBCTemplate" class="com.prokarma.apps.spring_transaction.StudentJDBCTemplate">
+	<bean id="studentDAO" class="com.prokarma.apps.spring_transaction.student.dao.impl.StudentDAOImpl">
 		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="studentService" class="com.prokarma.apps.spring_transaction.student.service.impl.StudentServiceImpl">
+		<property name="studentDAO" ref="studentDAO" />
 	</bean>
 
 </beans>
